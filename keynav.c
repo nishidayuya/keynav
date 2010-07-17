@@ -406,6 +406,7 @@ void defaults() {
   char *default_config[] = {
     "clear",
     "ctrl+semicolon start",
+    "ctrl+apostrophe start focused",
     "Escape end",
     "ctrl+bracketleft end", /* for vi people who use ^[ */
     "q record ~/.keynav_macros",
@@ -734,12 +735,31 @@ void cmd_start(char *args) {
   appstate.grid_nav_row = -1;
   appstate.grid_nav_col = -1;
 
-  wininfo.x = viewports[wininfo.curviewport].x;
-  wininfo.y = viewports[wininfo.curviewport].y;
-  wininfo.w = viewports[wininfo.curviewport].w;
-  wininfo.h = viewports[wininfo.curviewport].h;
-  
-  /* Default start with 4 cells, 2x2 */
+  if (!strcmp("focused", args)) {
+    int ret;
+    Window focused_window;
+    XWindowAttributes attributes;
+
+    xdo_window_get_focus(xdo, &focused_window);
+    ret = XGetWindowAttributes(xdo->xdpy, focused_window, &attributes);
+
+    if (!ret) {
+      fprintf(stderr, "XGetWindowAttributes reported an error.\n");
+      fprintf(stderr, "target window is: %ld\n", focused_window);
+      return;
+    }
+
+    wininfo.x = attributes.x;
+    wininfo.y = attributes.y;
+    wininfo.w = attributes.width;
+    wininfo.h = attributes.height;
+  } else { /* by full screen */
+    wininfo.x = viewports[wininfo.curviewport].x;
+    wininfo.y = viewports[wininfo.curviewport].y;
+    wininfo.w = viewports[wininfo.curviewport].w;
+    wininfo.h = viewports[wininfo.curviewport].h;
+  }
+
   wininfo.grid_rows = 2;
   wininfo.grid_cols = 2;
 

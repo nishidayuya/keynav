@@ -25,6 +25,7 @@
 #daemonize
 
 ctrl+semicolon start
+ctrl+apostrophe start focused
 Escape end
 ctrl+bracketleft end
 h cut-left
